@@ -7,7 +7,7 @@
 
 
 
-boost::multi_array<REAL, 2> Eigen_matrix_to_vectorized_vector(const Matrix<REAL, Dynamic, 3> x)
+boost::multi_array<REAL, 2> Eigen_matrix_to_vectorized_vector(const Eigen::Matrix<REAL, Eigen::Dynamic, 3> x)
 {   
     boost::multi_array<REAL, 2> boost_matrix;
     for (int j=0;j<x.rows();j++){

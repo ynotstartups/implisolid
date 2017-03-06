@@ -32,14 +32,14 @@ Todo:
 #include "boost/property_tree/ptree.hpp"
 #include "boost/property_tree/json_parser.hpp"
 
-
+#include "../js_iteration_2/object_factory.hpp"
 #include "../js_iteration_2/object_collector.hpp"
 
 #include "../js_iteration_2/pointset_set.hpp"
 
 #include "../js_iteration_2/vertex_resampling.hpp"
 #include "../js_iteration_2/apply_v_s_to_mc_buffers.hpp"
-#include "../js_iteration_1/centroids_projection.cpp"
+#include "../js_iteration_2/centroids_projection.cpp"
 
 #include "../js_iteration_2/faces_verts_algorithms.hpp"
 
@@ -77,7 +77,6 @@ typedef boost::array<array1d::index, 1>  array_shape_t;
 typedef array1d::index  index_t;
 
 #include "../js_iteration_2/marching_cubes.hpp"
-#include "tests/marching_cubes_mock.hpp"
 
 
 
@@ -292,25 +291,15 @@ std::pair< std::vector<REAL>, std::vector<vertexindex_type>> make_a_square(REAL 
 
 #include "../js_iteration_2/polygonizer_algorithm_ob02.hpp"
 
-inline void grand_algorithm(const std::string shape_parameters_json_str, const mp5_implicit::mc_settings  mc_settings_from_json, const worker_call_sepcs_t  worker_call_sepcs);
+// inline void grand_algorithm(const std::string shape_parameters_json_str, const mp5_implicit::mc_settings  mc_settings_from_json, const worker_call_sepcs_t  worker_call_sepcs);
 
-void build_geometry_u(const char* shape_parameters_json, const char* mc_parameters_json, const char* call_specs) {
-    std::clog << "PROGRESSIVE" << std::endl;
-    const mp5_implicit::mc_settings  mc_settings_from_json = parse_mc_properties_json(mc_parameters_json);
-    std::string shape_parameters_json_str = std::string(shape_parameters_json);
-    worker_call_sepcs_t  parse_worker_call_sepcs {std::string(call_specs)};
-    grand_algorithm(shape_parameters_json_str, mc_settings_from_json, parse_worker_call_sepcs);
-}
-
-// void build_geometry(int resolution, char* mc_parameters_json, char* obj_name, REAL time){
-void build_geometry(const char* shape_parameters_json, const char* mc_parameters_json)
-{
-    std::clog << "NON-Progressive" << std::endl;
-    const mp5_implicit::mc_settings  mc_settings_from_json = parse_mc_properties_json(mc_parameters_json);
-    std::string shape_parameters_json_str = std::string(shape_parameters_json);
-    worker_call_sepcs_t  worker_call_sepcs {};
-    grand_algorithm(shape_parameters_json_str, mc_settings_from_json, worker_call_sepcs);
-}
+// void build_geometry_u(const char* shape_parameters_json, const char* mc_parameters_json, const char* call_specs) {
+//     std::clog << "PROGRESSIVE" << std::endl;
+//     const mp5_implicit::mc_settings  mc_settings_from_json = parse_mc_properties_json(mc_parameters_json);
+//     std::string shape_parameters_json_str = std::string(shape_parameters_json);
+//     worker_call_sepcs_t  parse_worker_call_sepcs {std::string(call_specs)};
+//     grand_algorithm(shape_parameters_json_str, mc_settings_from_json, parse_worker_call_sepcs);
+// }
 
 /**
 *************************************************
@@ -318,7 +307,7 @@ void build_geometry(const char* shape_parameters_json, const char* mc_parameters
 *************************************************
 */
 inline void grand_algorithm(
-    const std::string  shape_parameters_json_str,
+    const char*  shape_parameters_json,
     const mp5_implicit::mc_settings  mc_settings_from_json,
     //const std::string  mc_settings_from_json,
     const worker_call_sepcs_t  worker_call_sepcs
@@ -329,21 +318,29 @@ inline void grand_algorithm(
         return;
     }
 
-
+    std::cout << "build_geometry 336" << std::endl;
     //const mp5_implicit::mc_settings  mc_settings_from_json = parse_mc_properties_json(mc_parameters_json);
     //const std::string shape_parameters_json_str = std::string(shape_parameters_json);
+    std::cout << "build_geometry -" << std::endl;
+    std::cout << mc_settings_from_json.ignore_root_matrix << "\n";
+    std::cout << "build_geometry --" << std::endl;
     bool ignore_root_matrix = mc_settings_from_json.ignore_root_matrix;
+    std::cout << "build_geometry ---" << std::endl;
 
     //unique_pointer<mp5_implicit::implicit_function> object = ...;
 
     // bool use_metaball;  // output
-    mp5_implicit::implicit_function* object = object_factory(shape_parameters_json_str , /*use_metaball,*/ ignore_root_matrix);
+    std::cout << "build_geometry ----" << std::endl;
+
+    mp5_implicit::implicit_function* object = object_factory(shape_parameters_json , /*use_metaball,*/ ignore_root_matrix);
+    std::cout << "build_geometry 345" << std::endl;
 
     // timer timr;
     //timr.report_and_continue("timer started.");
 
     //polygonizer  algorithm(_state, *object, std::string(mc_parameters_json)/*, timr*/);
     polygonizer algorithm(_state, *object, mc_settings_from_json /*, timr*/, worker_call_sepcs);
+    std::cout << "build_geometry 352" << std::endl;
 
 
     // polygonizer::polygonize_init(_state, *object, mc_settings_from_json, use_metaball, algorithm.steps_report, timr);
@@ -444,6 +441,26 @@ inline void grand_algorithm(
     algorithm.polygonize_terminate();
     //delete object;
     object = NULL;
+}
+
+void build_geometry(const char* shape_parameters_json, const char* mc_parameters_json) {
+
+
+    // for(int i = 0 ; i < 1000; i ++ ){
+    //       std::cout << shape_parameters_json[i];
+    // }
+
+    std::cout << "NON-Progressive" << std::endl;
+    // std::cout <<  "char length" << " "<<std::strlen(shape_parameters_json) << "\n";
+    const mp5_implicit::mc_settings  mc_settings_from_json = parse_mc_properties_json(mc_parameters_json);
+    std::cout << "build_geometry 310" << std::endl;
+    // std::string shape_parameters_json_str(shape_parameters_json);
+
+    std::cout << "build_geometry 312" << std::endl;
+    worker_call_sepcs_t  worker_call_sepcs {};
+    std::cout << "build_geometry 314" << std::endl;
+    grand_algorithm(shape_parameters_json, mc_settings_from_json, worker_call_sepcs);
+    std::cout << "build_geometry 316" << std::endl;
 }
 
 int get_f_size() {
@@ -714,9 +731,9 @@ int set_object(const char* shape_parameters_json, bool ignore_root_matrix) {
 
     //std::clog << "before: current_object " << ifunction_service.current_object << std::endl;
 
-    std::string str = std::string(shape_parameters_json);
+    // std::string str = std::string(shape_parameters_json);
     bool dummy;
-    ifunction_service.current_object = object_factory(str, /*dummy,*/ ignore_root_matrix);
+    ifunction_service.current_object = object_factory(shape_parameters_json, /*dummy,*/ ignore_root_matrix);
 
     //std::clog << "after: current_object " << ifunction_service.current_object << std::endl;
     int new_object_id = 1;

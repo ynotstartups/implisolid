@@ -55,6 +55,7 @@ namespace mp5_implicit {
 // Curated implicit_functions only
 implicit_function*  object_factory(pt::ptree shapeparams_dict, bool ignore_root_matrix) {
 
+    std::cout << "beginning of object_factory \n";
     /*
     using mp5_implicit::implicit_functions::double_mushroom;
     using mp5_implicit::implicit_functions::linearly_transformed;
@@ -355,6 +356,7 @@ implicit_function*  object_factory(pt::ptree shapeparams_dict, bool ignore_root_
             copy_eye(matrix12);
         }
 
+        int id;
         int size_x;
         int size_y;
         int size_z;
@@ -367,6 +369,7 @@ implicit_function*  object_factory(pt::ptree shapeparams_dict, bool ignore_root_
         std::cout << "gate 0" << std::endl;
 
         implicit_functions::sdf_3d::getSdf_3dParameters(
+                                        id,
                                         size_x,
                                         size_y,
                                         size_z,
@@ -379,6 +382,7 @@ implicit_function*  object_factory(pt::ptree shapeparams_dict, bool ignore_root_
         std::cout << "gate 1" << std::endl;
 
         object = new implicit_functions::sdf_3d(matrix12,
+                                                id,
                                                 size_x,
                                                 size_y,
                                                 size_z,
@@ -734,12 +738,21 @@ implicit_function*  object_factory(pt::ptree shapeparams_dict, bool ignore_root_
 }
 
 
-implicit_function*  object_factory(string shape_parameters_json, bool ignore_root_matrix)
+implicit_function*  object_factory(const char* shape_parameters_json, bool ignore_root_matrix)
 {
+    // for(int i = 0 ; i < std::strlen(shape_parameters_json); i ++ ){
+    //       std::cout << shape_parameters_json[i];
+    // }
+    std::cout << "object_factory string to pttree \n";
     std::stringstream shape_json_stream;
-    shape_json_stream << shape_parameters_json ;
+    std::cout << "of - \n";
+    shape_json_stream << shape_parameters_json;
+    // shape_json_stream << shape_parameters_json;
+    std::cout << "of -- \n";
     pt::ptree shapeparams_dict;
+    std::cout << "of --- \n";
     pt::read_json(shape_json_stream, shapeparams_dict);
+    std::cout << "of ---- \n";
     return object_factory(shapeparams_dict, ignore_root_matrix);
 
 }
